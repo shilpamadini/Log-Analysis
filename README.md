@@ -34,23 +34,8 @@ This project can be run on a Linux-based virtual machine that comes pre-installe
     *  At the VM shell prompt
         * ```cd /vagrant```
         * ```psql -d news -f newsdata.sql```
-    * At the psql prompt please run following to create required views.
-        * ```create view title_logs as
-    (select ar.author,ar.title,ar.slug,lg.path,lg.ip,lg.method,lg.status,lg.time,lg.id from articles ar , log lg
-    where lg.path like '%'||ar.slug||'%' order by ar.title);```
-        * ```create view log_req_prcnt as
-    (
-    select s.date,s.method,s.status,
-    s.cnt_status,r.cnt_requests,(s.cnt_status * 100)::numeric/r.cnt_requests as percentage
-    from
-    (select method,status,time::date as date, count(status) as cnt_status
-    from log group by method,status,date order by date) s,
-    (select method,time::date as date ,count(method) as cnt_requests
-    from log group by method, date order by date) r
-    where s.method = r.method
-    and s.date = r.date
-    order by s.date
-    );```
+        * ```\i title_logs.sql```
+        * ```\i log_req_prcnt.sql```
         * ```\q``` to go back to shell prompt
     * At the VM shell prompt run the python script to generate reports.
         * ```python loganalysis.py```
