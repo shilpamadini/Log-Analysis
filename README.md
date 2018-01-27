@@ -1,56 +1,56 @@
 # Log-Analysis
 
-This folder contains the necessary program files to generate log analysis report from "news" database.
-
-# Design
-
-This code generates three reports out of "news" database.
-
-1. The database consists of the following tables.
-    * authors
-        * Table contains name, bio and id (unique id) columns
-    * articles
-        * Table contains author (foreign key to authors (id)),title,slug,lead,body, time columns
-    * log
-        * Table contains path,ip,method,status, time and id columns
-2. ***The most popular three articles of all time***
-    * Data required to generate this report lies in two tables
-    articles and logs.
-    * The view "title_logs" is created to associate log table data with corresponding article title using values of path column.
-    * The data in "title_view" is later aggregated to generate the number of views  for each article and select the top three articles that have the most views.
-3. ***The most popular authors of all time***
-    * Data in the view "title_logs" is joined with authors table to
-    generate the number of views for each author.
-4. ***The days when more than 1% of requests lead to errors***
-    * The view "log_req_prcnt" is created derive percentage of each request status out of total number of requests received per day.
-    * This view is later queried to retrieve the data when more than 1% of the requests lead to errors.
+This folder contains the necessary program files to generate log analysis reports from "news" database.
 
 ## Contents
 
 1. loganalysis.py
-    * Python file containing the database code run the reporting sql against the database.
+    * Python file containing the database code to run the reports.
 2. log_req_prcnt.sql
-    * sql file to create "log_req_prcnt" view. This view displays the
-    aggregates counts HTTP request status per each distinct date and HTTP request method.
+    * sql file to create "log_req_prcnt" view.
 3. title_logs.sql
-    * sql file to create "title_logs" view. This view displays the log table data in association with article titles and author ids.
-4. newsdata.sql
-    * sql file to create "news" database and the related tables.
+    * sql file to create "title_logs" view.
 
 ## Installation
 
-1. This project can be run on a Linux-based virtual machine that comes pre-installed with the PostgreSQL database, python and other necessary software.
-2. We will use Vagrant and VirtualBox to install and manage this VM.
-3. Downloaded VirtualBox from [here](https://www.virtualbox.org/wiki/Download_Old_Builds_5_1).Install the platform package
-for your operating system. No need to download the extension package or SDK.There is also no need to launch VirtualBox.
-4. Download  and setup Vagrant by using the following commands.
-    * ```git clone https://github.com/udacity/fullstack-nanodegree-vm```
-    * Change to the "fullstack-nanodegree-vm" folder in the terminal.
+This project can be run on a Linux-based virtual machine that comes pre-installed with the PostgreSQL database, python and other necessary software.
+
+1. Download the following software to run the project.
+    * Download VirtualBox from [here](https://www.virtualbox.org/wiki/Download_Old_Builds_5_1).Install the platform package for your operating system. No need to download the extension package or SDK.There is also no need to launch VirtualBox.
+    * Download "Vagrant" from the following git repository.
+        * ```git clone https://github.com/udacity/fullstack-nanodegree-vm```
+    * On your Terminal navigate to  "fullstack-nanodegree-vm" folder cloned from the above GIT repository. Navigate to vagrant subdirectory.
         * ```cd vagrant```
-    * To download and install the Linux OS. Run the following command in vagrant directory.
+    * Download the data for the  news database [here] (https://d17h27t6h515a5.cloudfront.net/topher/2016/August/57b5f748_newsdata/newsdata.zip). Verify "newsdata.sql" is downloaded to "vagrant" directory
+    * Use the following command to clone the project repository.
+        * ```git clone https://github.com/shilpamadini/Log-Analysis.git```
+3. Run the following commands to install the required software.
+    * Navigate to the "vagrant" directory where above mentioned software is downloaded.
+    * To install the Linux VM. Run the following command.
         * ```vagrant up```
-    * Once Vagrant up  finished running run the following command to login to VM
+    * Once Vagrant up is finished running,run the following command to login to VM
         * ```vagrant ssh```
     * All the files in "vagrant" directory on your terminal will appear in the "/vagrant" directory on the VM
- 5. Once you are in the "vagrant" directory
-    *
+    *  At the VM shell prompt
+        * ```cd /vagrant```
+        * ```psql -d news -f newsdata.sql```
+    * At the psql prompt please run following to create required views.
+        * ```create view title_logs as
+    (select ar.author,ar.title,ar.slug,lg.path,lg.ip,lg.method,lg.status,lg.time,lg.id from articles ar , log lg
+    where lg.path like '%'||ar.slug||'%' order by ar.title);```
+        * ```create view log_req_prcnt as
+    (
+    select s.date,s.method,s.status,
+    s.cnt_status,r.cnt_requests,(s.cnt_status * 100)::numeric/r.cnt_requests as percentage
+    from
+    (select method,status,time::date as date, count(status) as cnt_status
+    from log group by method,status,date order by date) s,
+    (select method,time::date as date ,count(method) as cnt_requests
+    from log group by method, date order by date) r
+    where s.method = r.method
+    and s.date = r.date
+    order by s.date
+    );```
+        * ```\q``` to go back to shell prompt
+    * At the VM shell prompt run the python script to generate reports.
+        * ```python loganalysis.py```
