@@ -1,80 +1,49 @@
 #!/usr/bin/env python
 """Python database code for reporting from news database."""
 
-import psycopg2
-import sys
+import dbconnect
 
 db_name = "news"
-
-# Connect to database
-
-try:
-    db = psycopg2.connect(database=db_name)
-except psycopg2.OperationalError as e:
-    print(str(e)+"\n")
-    sys.exit(1)
-else:
-    print("Connected to {} database.".format('news')+"\n")
-    c = db.cursor()
-
 sql_1 = "select title,count(ip) as cnt from title_logs \
             group by title order by cnt desc limit 3"
 sql_2 = "select a.name,s.cnt as count from \
-            authors a, \
-            (select author, count(ip) as cnt from title_logs \
+            authors a,(select author, count(ip) as cnt from title_logs \
             group by author) s where a.id = s.author order by count desc"
 sql_3 = "select to_char(date,'MON DD,YYYY'),round(percentage,2) as per from \
             log_req_prcnt where percentage>1 and status = '404 NOT FOUND'"
 
-
-def get_report(input_query):
-    """Function to exeute and return the results of a sql statement."""
-    try:
-        c.execute(input_query)
-    except psycopg2.Error as e:
-        print(e.diag.message_primary+"\n")
-        sys.exit(1)
-    else:
-        rows = c.fetchall()
-        return rows
+title_1 = "The most popular three articles of all time"
+title_2 = "The most popular authors of all time"
+title_3 = "The days when more than 1% \
+of requests lead to errors"
 
 
-# Select most popular three articles of all time.
-# Code uses a view title_logs that is predefined in database.
+def print_report(qt, sign, title, rows, txt):
+    """Function to print out the reports in text format."""
+    print(title)
+    print('-------------------------------------------')
+    for rec in rows:
+        print('{}{}{} - {}{} {}'.format(qt, rec[0], qt, rec[1], sign, txt))
+    print("\n")
 
-# print('\033[4mThe most popular three articles of all time\033[0m')
-print('The most popular three articles of all time')
-print('-------------------------------------------')
-records = get_report(sql_1)
-for rec in records:
-    print('"{}" - {} views'.format(rec[0], rec[1]))
-print("\n")
 
-# Select most popular article authors of all time.
-# Code uses a view title_logs that is predefined in database.
+if __name__ == '__main__':
+    # Create instances of dbconnect
 
-print('The most popular authors of all time')
-print('-------------------------------------------')
-records = get_report(sql_2)
-for rec in records:
-    print('"{}" - {} views'.format(rec[0], rec[1]))
-print("\n")
+    report_1 = dbconnect.Connect(db_name, sql_1)
+    report_2 = dbconnect.Connect(db_name, sql_2)
+    report_3 = dbconnect.Connect(db_name, sql_3)
 
-# Select the days when more than 1% of the requests led to error.
-# Code uses a view log_req_prcnt that is predefined in database.
+    # Call connect_db method of class Connect for all the instances
 
-print('The days when more than 1''%'' \
-of requests lead to errors')
-print('-------------------------------------------')
-records = get_report(sql_3)
-for rec in records:
-    print('{} - {}''%'' errors'.format(rec[0], rec[1]))
-print("\n")
+    record_1 = report_1.connect_db()
+    record_2 = report_2.connect_db()
+    record_3 = report_3.connect_db()
 
-# close the cursor
-
-c.close()
-
-# close the database connection
-
-db.close()
+    # Print reports
+    # Select most popular three articles of all time.
+    print_report('"', '', title_1, record_1, 'views')
+    # Select most popular article authors of all time.
+    print_report('', '', title_2, record_2, 'views')
+    # Select the days when more than 1% of the requests led to error.
+    print_report('', "%", title_3, record_3, 'errors')
