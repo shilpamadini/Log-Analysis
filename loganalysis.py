@@ -30,9 +30,9 @@ def print_report(qt, sign, title, rows, txt):
 if __name__ == '__main__':
     # Create instances of dbconnect
 
-    report_1 = dbconnect.Connect(db_name, sql_1)
-    report_2 = dbconnect.Connect(db_name, sql_2)
-    report_3 = dbconnect.Connect(db_name, sql_3)
+    report_1 = dbconnect.DBHandler(db_name, sql_1)
+    report_2 = dbconnect.DBHandler(db_name, sql_2)
+    report_3 = dbconnect.DBHandler(db_name, sql_3)
 
     # Call connect_db method of class Connect for all the instances
 
