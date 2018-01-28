@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Python code to create Dbconnect class."""
+"""Python code to create Connect class."""
 
 import psycopg2
 import sys
@@ -8,7 +8,7 @@ import sys
 class Connect():
     """
     This class provides blueprint to connect to database
-    connection and execute statements.
+    and execute statements.
     """
 
     def __init__(self, db_name, sql):
