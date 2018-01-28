@@ -4,11 +4,13 @@ This folder contains the necessary program files to generate log analysis report
 
 ## Contents
 
-1. loganalysis.py
+1. dbconnect.py
+    * Python file the defines the class Connect to connect to the database.
+2. loganalysis.py
     * Python file containing the database code to run the reports.
-2. log_req_prcnt.sql
+3. log_req_prcnt.sql
     * sql file to create "log_req_prcnt" view.
-3. title_logs.sql
+4. title_logs.sql
     * sql file to create "title_logs" view.
 
 ## Installation
@@ -21,7 +23,8 @@ This project can be run on a Linux-based virtual machine that comes pre-installe
         * ```git clone https://github.com/udacity/fullstack-nanodegree-vm```
     * On your Terminal navigate to  "fullstack-nanodegree-vm" folder cloned from the above GIT repository. Navigate to vagrant subdirectory.
         * ```cd vagrant```
-    * Download the data for the  news database [here] (https://d17h27t6h515a5.cloudfront.net/topher/2016/August/57b5f748_newsdata/newsdata.zip). Verify "newsdata.sql" is downloaded to "vagrant" directory
+    * Download the data for the  news database
+    [here](https://d17h27t6h515a5.cloudfront.net/topher/2016/August/57b5f748_newsdata/newsdata.zip). Verify "newsdata.sql" is downloaded to "vagrant" directory
     * Use the following command to clone the project repository.
         * ```git clone https://github.com/shilpamadini/Log-Analysis.git```
 3. Run the following commands to install the required software.
@@ -38,4 +41,5 @@ This project can be run on a Linux-based virtual machine that comes pre-installe
         * ```\i log_req_prcnt.sql```
         * ```\q``` to go back to shell prompt
     * At the VM shell prompt run the python script to generate reports.
+        * ```python dbconnect.py```
         * ```python loganalysis.py```
