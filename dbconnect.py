@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-"""Python code to create Connect class."""
+"""Python code to create DBHandler class."""
 
 import psycopg2
 import sys
 
 
-class Connect():
+class DBHandler():
     """
     This class provides blueprint to connect to database
     and execute statements.
